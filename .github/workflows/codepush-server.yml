@@ -22,7 +22,7 @@ jobs:
       name: "Docker Meta"
       uses: "docker/metadata-action@v5.5.1"
       with:
-        images: your-acr-name.azurecr.io/your-repo/codepush-server
+        images: droppii.azurecr.io/droppii/codepush-server
         tags: |
           type=ref,event=branch
           type=sha
@@ -30,7 +30,7 @@ jobs:
     - name: Login to Azure Container Registry
       uses: azure/docker-login@v2
       with:
-        login-server: your-acr-name.azurecr.io
+        login-server: droppii.azurecr.io
         username: ${{ secrets.AZURE_CLIENT_ID }}
         password: ${{ secrets.AZURE_CLIENT_SECRET }}
 
