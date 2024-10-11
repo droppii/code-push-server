@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  codepush-server:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - EMULATED=true
+      - SERVER_URL=http://localhost:3000
+      - GITHUB_CLIENT_ID=your_github_client_id
+      - GITHUB_CLIENT_SECRET=your_github_client_secret
+      - MICROSOFT_CLIENT_ID=your_microsoft_client_id
+      - MICROSOFT_CLIENT_SECRET=your_microsoft_client_secret
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
