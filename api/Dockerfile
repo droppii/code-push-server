@@ -16,7 +16,9 @@ COPY . .
 # Build the application
 RUN npm run build
 
-RUN ls -l /app
+ENV NEW_RELIC_NO_CONFIG_FILE=true
+ENV NEW_RELIC_DISTRIBUTED_TRACING_ENABLED=true
+ENV NEW_RELIC_APP_NAME="codepush-server"
 
 # Expose the port the app runs on
 EXPOSE 3000
