@@ -4,6 +4,7 @@
 import * as express from "express";
 import * as defaultServer from "./default-server";
 
+require('newrelic');
 const https = require("https");
 const fs = require("fs");
 
