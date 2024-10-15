@@ -164,6 +164,7 @@ export class AzureStorage implements storage.Storage {
   private static HISTORY_BLOB_CONTAINER_NAME = "packagehistoryv1";
   private static MAX_PACKAGE_HISTORY_LENGTH = 50;
   private static TABLE_NAME = "storagev2";
+  private static CDN_URL = process.env.CDN_URL;
 
   private _tableClient: TableClient;
   private _blobService: BlobServiceClient;
@@ -704,11 +705,14 @@ export class AzureStorage implements storage.Storage {
       })
       .catch(AzureStorage.azureErrorHandler);
   }
-
-  public getBlobUrl(blobId: string): q.Promise<string> {
+  public getBlobUrl(blobId: string, useCdn: boolean = false): q.Promise<string> {
     return this._setupPromise
       .then(() => {
-        return this._blobService.getContainerClient(AzureStorage.TABLE_NAME).getBlobClient(blobId).url;
+        if (!AzureStorage.CDN_URL) {
+          return this._blobService.getContainerClient(AzureStorage.TABLE_NAME).getBlobClient(blobId).url;
+        } else {
+          return `${AzureStorage.CDN_URL}/${AzureStorage.TABLE_NAME}/${blobId}`;
+        }
       })
       .catch(AzureStorage.azureErrorHandler);
   }
