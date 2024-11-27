@@ -28,6 +28,7 @@ import Promise = q.Promise;
 import tryJSON = require("try-json");
 import rateLimit from "express-rate-limit";
 import { isPrototypePollutionKey } from "../storage/storage";
+import * as newrelic from 'newrelic';
 
 const DEFAULT_ACCESS_KEY_EXPIRY = 1000 * 60 * 60 * 24 * 60; // 60 days
 const ACCESS_KEY_MASKING_STRING = "(hidden)";
@@ -58,6 +59,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   const nameResolver: NameResolver = new NameResolver(config.storage);
 
   router.get("/account", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('GET /account');
     const accountId: string = req.user.id;
     storage
       .getAccount(accountId)
@@ -70,6 +72,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.get("/accessKeys", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('GET /accessKeys');
     const accountId: string = req.user.id;
 
     storage
@@ -93,6 +96,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.post("/accessKeys", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('POST /accessKeys');
     const accountId: string = req.user.id;
     const accessKeyRequest: restTypes.AccessKeyRequest = converterUtils.accessKeyRequestFromBody(req.body);
     if (!accessKeyRequest.name) {
@@ -141,6 +145,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.get("/accessKeys/:accessKeyName", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('GET /accessKeys/:accessKeyName');
     const accessKeyName: string = req.params.accessKeyName;
     const accountId: string = req.user.id;
 
@@ -155,6 +160,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.patch("/accessKeys/:accessKeyName", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('PATCH /accessKeys/:accessKeyName');
     const accountId: string = req.user.id;
     const accessKeyName: string = req.params.accessKeyName;
     const accessKeyRequest: restTypes.AccessKeyRequest = converterUtils.accessKeyRequestFromBody(req.body);
@@ -204,6 +210,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.delete("/accessKeys/:accessKeyName", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('DELETE /accessKeys/:accessKeyName');
     const accountId: string = req.user.id;
     const accessKeyName: string = req.params.accessKeyName;
 
@@ -247,6 +254,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.get("/apps", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('GET /apps');
     const accountId: string = req.user.id;
     storage
       .getApps(accountId)
@@ -268,6 +276,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.post("/apps", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('POST /apps');
     const accountId: string = req.user.id;
     const appRequest: restTypes.AppCreationRequest = converterUtils.appCreationRequestFromBody(req.body);
 
@@ -317,6 +326,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.get("/apps/:appName", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('GET /apps/:appName');
     const accountId: string = req.user.id;
     const appName: string = req.params.appName;
     let storageApp: storageTypes.App;
@@ -335,6 +345,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.delete("/apps/:appName", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('DELETE /apps/:appName');
     const accountId: string = req.user.id;
     const appName: string = req.params.appName;
     let appId: string;
@@ -368,6 +379,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.patch("/apps/:appName", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('PATCH /apps/:appName');
     const accountId: string = req.user.id;
     const appName: string = req.params.appName;
     const app: restTypes.App = converterUtils.appFromBody(req.body);
@@ -415,6 +427,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.post("/apps/:appName/transfer/:email", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('POST /apps/:appName/transfer/:email');
     const accountId: string = req.user.id;
     const appName: string = req.params.appName;
     const email: string = req.params.email;
@@ -503,6 +516,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.get("/apps/:appName/deployments", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('GET /apps/:appName/deployments');
     const accountId: string = req.user.id;
     const appName: string = req.params.appName;
     let appId: string;
@@ -526,6 +540,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.post("/apps/:appName/deployments", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('POST /apps/:appName/deployments');
     const accountId: string = req.user.id;
     const appName: string = req.params.appName;
     let appId: string;
@@ -565,6 +580,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.get("/apps/:appName/deployments/:deploymentName", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('GET /apps/:appName/deployments/:deploymentName');
     const accountId: string = req.user.id;
     const appName: string = req.params.appName;
     const deploymentName: string = req.params.deploymentName;
@@ -586,6 +602,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.delete("/apps/:appName/deployments/:deploymentName", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('DELETE /apps/:appName/deployments/:deploymentName');
     const accountId: string = req.user.id;
     const appName: string = req.params.appName;
     const deploymentName: string = req.params.deploymentName;
@@ -614,6 +631,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.patch("/apps/:appName/deployments/:deploymentName", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('PATCH /apps/:appName/deployments/:deploymentName');
     const accountId: string = req.user.id;
     const appName: string = req.params.appName;
     const deploymentName: string = req.params.deploymentName;
@@ -659,6 +677,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.patch("/apps/:appName/deployments/:deploymentName/release", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('PATCH /apps/:appName/deployments/:deploymentName/release');
     const accountId: string = req.user.id;
     const appName: string = req.params.appName;
     const deploymentName: string = req.params.deploymentName;
@@ -761,6 +780,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.post("/apps/:appName/deployments/:deploymentName/release", releaseRateLimiter, (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('POST /apps/:appName/deployments/:deploymentName/release');
     const accountId: string = req.user.id;
     const appName: string = req.params.appName;
     const deploymentName: string = req.params.deploymentName;
@@ -899,6 +919,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   router.delete(
     "/apps/:appName/deployments/:deploymentName/history",
     (req: Request, res: Response, next: (err?: any) => void): any => {
+      newrelic.setTransactionName('DELETE /apps/:appName/deployments/:deploymentName/history');
       const accountId: string = req.user.id;
       const appName: string = req.params.appName;
       const deploymentName: string = req.params.deploymentName;
@@ -933,6 +954,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   );
 
   router.get("/apps/:appName/deployments/:deploymentName/history", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('GET /apps/:appName/deployments/:deploymentName/history');
     const accountId: string = req.user.id;
     const appName: string = req.params.appName;
     const deploymentName: string = req.params.deploymentName;
@@ -956,6 +978,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   });
 
   router.get("/apps/:appName/deployments/:deploymentName/metrics", (req: Request, res: Response, next: (err?: any) => void): any => {
+    newrelic.setTransactionName('GET /apps/:appName/deployments/:deploymentName/metrics');
     if (!redisManager.isEnabled) {
       res.send({ metrics: {} });
     } else {
@@ -986,6 +1009,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   router.post(
     "/apps/:appName/deployments/:sourceDeploymentName/promote/:destDeploymentName",
     (req: Request, res: Response, next: (err?: any) => void): any => {
+      newrelic.setTransactionName('POST /apps/:appName/deployments/:sourceDeploymentName/promote/:destDeploymentName');
       const accountId: string = req.user.id;
       const appName: string = req.params.appName;
       const sourceDeploymentName: string = req.params.sourceDeploymentName;
@@ -1086,6 +1110,7 @@ export function getManagementRouter(config: ManagementConfig): Router {
   router.post(
     "/apps/:appName/deployments/:deploymentName/rollback/:targetRelease?",
     (req: Request, res: Response, next: (err?: any) => void): any => {
+      newrelic.setTransactionName('POST /apps/:appName/deployments/:deploymentName/rollback');
       const accountId: string = req.user.id;
       const appName: string = req.params.appName;
       const deploymentName: string = req.params.deploymentName;

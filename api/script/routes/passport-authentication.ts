@@ -11,6 +11,7 @@ import * as passportWindowsLive from "passport-windowslive";
 import * as q from "q";
 import * as superagent from "superagent"
 import rateLimit from "express-rate-limit";
+import * as newrelic from 'newrelic';
 
 import * as converterUtils from "../utils/converter";
 import * as restErrorUtils from "../utils/rest-error-handling";
@@ -139,6 +140,7 @@ export class PassportAuthentication {
     router.use(passport.initialize());
 
     router.get("/authenticated", limiter, this.authenticate, (req: Request, res: Response): any => {
+      newrelic.setTransactionName('GET /authenticated');
       res.send({ authenticated: true });
     });
 
@@ -166,16 +168,19 @@ export class PassportAuthentication {
     }
 
     router.get("/auth/login", this._cookieSessionMiddleware, (req: Request, res: Response): any => {
+      newrelic.setTransactionName('GET /auth/login');
       req.session["hostname"] = req.query.hostname;
       res.render("authenticate", { action: "login" });
     });
 
     router.get("/auth/link", this._cookieSessionMiddleware, (req: Request, res: Response): any => {
+      newrelic.setTransactionName('GET /auth/link');
       req.session["authorization"] = req.query.access_token;
       res.render("authenticate", { action: "link" });
     });
 
     router.get("/auth/register", this._cookieSessionMiddleware, (req: Request, res: Response): any => {
+      newrelic.setTransactionName('GET /auth/register');
       req.session["hostname"] = req.query.hostname;
       res.render("authenticate", { action: "register" });
     });
@@ -253,8 +258,11 @@ export class PassportAuthentication {
       limiter,
       this._cookieSessionMiddleware,
       (req: Request, res: Response, next: (err?: any) => void): any => {
+        newrelic.addCustomAttribute('authProvider', providerName);
+        newrelic.addCustomAttribute('authStrategy', strategyName);
+        newrelic.setTransactionName('GET /auth/login/' + providerName);
+        
         req.session["action"] = "login";
-
         passport.authenticate(strategyName, { session: false })(req, res, next);
       }
     );
@@ -292,10 +300,14 @@ export class PassportAuthentication {
       this._cookieSessionMiddleware,
       passport.authenticate(strategyName, { failureRedirect: "/auth/login/" + providerName, session: false }),
       (req: Request, res: Response, next: (err?: any) => void): any => {
+        newrelic.setTransactionName('GET /auth/callback/' + providerName);
         const action: string = req.session["action"];
         const hostname: string = req.session["hostname"];
         const user: passport.Profile = req.user;
 
+        newrelic.addCustomAttribute('authAction', action);
+        newrelic.addCustomAttribute('authProvider', providerName);
+        
         if (action === "register" && !PassportAuthentication.isAccountRegistrationEnabled()) {
           restErrorUtils.sendForbiddenError(res);
           return;
