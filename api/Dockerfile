@@ -24,4 +24,4 @@ ENV NEW_RELIC_APP_NAME="codepush-server"
 EXPOSE 3000
 
 # Define the command to run the app
-CMD ["npm", "start:newrelic", "start"]
+CMD ["npm", "run", "start"]
