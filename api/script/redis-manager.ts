@@ -7,6 +7,7 @@ import * as q from "q";
 import * as redis from "redis";
 
 import Promise = q.Promise;
+import { Logger } from './utils/logger';
 
 export const DEPLOYMENT_SUCCEEDED = "DeploymentSucceeded";
 export const DEPLOYMENT_FAILED = "DeploymentFailed";
@@ -111,11 +112,11 @@ export class RedisManager {
       this._opsClient = redis.createClient(redisConfig);
       this._metricsClient = redis.createClient(redisConfig);
       this._opsClient.on("error", (err: Error) => {
-        console.error(err);
+        Logger.error(err, { component: 'RedisManager', client: 'ops' });
       });
 
       this._metricsClient.on("error", (err: Error) => {
-        console.error(err);
+        Logger.error(err, { component: 'RedisManager', client: 'metrics' });
       });
 
       this._promisifiedOpsClient = new PromisifiedRedisClient(this._opsClient);
@@ -124,7 +125,9 @@ export class RedisManager {
         .select(RedisManager.METRICS_DB)
         .then(() => this._promisifiedMetricsClient.set("health", "health"));
     } else {
-      console.warn("No REDIS_HOST or REDIS_PORT environment variable configured.");
+      Logger.warn("No REDIS_HOST or REDIS_PORT environment variable configured.", {
+        component: 'RedisManager'
+      });
     }
   }
 

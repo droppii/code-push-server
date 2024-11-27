@@ -15,6 +15,7 @@ import * as bodyParser from "body-parser";
 const domain = require("express-domain-middleware");
 import * as express from "express";
 import * as q from "q";
+import { Logger } from "./utils/logger";
 
 interface Secret {
   id: string;
@@ -92,8 +93,8 @@ export function start(done: (err?: any, server?: express.Express, storage?: Stor
 
       if (process.env.LOGGING) {
         app.use((req: express.Request, res: express.Response, next: (err?: any) => void): any => {
-          console.log(); // Newline to mark new request
-          console.log(`[REST] Received ${req.method} request at ${req.originalUrl}`);
+          // console.log(); // Newline to mark new request
+          Logger.info(`[REST] Received ${req.method} request at ${req.originalUrl}`);
           next();
         });
       }
