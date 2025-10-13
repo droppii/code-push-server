@@ -98,6 +98,7 @@ export class RedisManager {
   private _promisifiedMetricsClient: PromisifiedRedisClient;
   private _setupMetricsClientPromise: Promise<void>;
 
+  
   constructor() {
     if (process.env.REDIS_HOST && process.env.REDIS_PORT) {
       const redisConfig = {
