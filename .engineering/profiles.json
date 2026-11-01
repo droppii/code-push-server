@@ -1,0 +1,185 @@
+{
+  "kind": "repository-execution-profiles",
+  "schemaVersion": 1,
+  "repository": "droppii/code-push-server",
+  "workspace": "checkout/worktree/VM do nền tảng agent quản lý theo công việc",
+  "context": "docs/repository-context.md",
+  "modules": [
+    {
+      "id": "api",
+      "path": "api",
+      "manifest": "api/package.json",
+      "runtime": {
+        "engines": {
+          "node": ">=18.0.0",
+          "npm": ">=9.0.0"
+        },
+        "packageManager": "npm; phiên bản lấy theo pipeline của module khi manifest không khóa",
+        "sources": [
+          "api/package.json"
+        ]
+      },
+      "dependency": {
+        "lockfile": "api/package-lock.json",
+        "cwd": "api",
+        "argv": [
+          "npm",
+          "ci",
+          "--ignore-scripts"
+        ],
+        "lifecycle": "Script cài đặt tắt; đọc postinstall/prepare và chỉ chạy bước sinh mã/patch cần thiết sau khi kiểm tra tác động.",
+        "limitations": []
+      }
+    },
+    {
+      "id": "cli",
+      "path": "cli",
+      "manifest": "cli/package.json",
+      "runtime": {
+        "engines": {},
+        "packageManager": "npm; phiên bản lấy theo pipeline của module khi manifest không khóa",
+        "sources": [
+          "cli/package.json"
+        ]
+      },
+      "dependency": {
+        "lockfile": "cli/package-lock.json",
+        "cwd": "cli",
+        "argv": [
+          "npm",
+          "ci",
+          "--ignore-scripts"
+        ],
+        "lifecycle": "Script cài đặt tắt; đọc postinstall/prepare và chỉ chạy bước sinh mã/patch cần thiết sau khi kiểm tra tác động.",
+        "limitations": []
+      }
+    }
+  ],
+  "imageSources": [
+    {
+      "source": "api/Dockerfile",
+      "declaration": "FROM node:18-alpine"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "api-manifest",
+      "kind": "source-check",
+      "purpose": "Kiểm tra manifest và đầu vào dependency của api",
+      "cwd": ".",
+      "requiredFiles": [
+        "api/package.json",
+        "api/package-lock.json"
+      ],
+      "patterns": [
+        "api/package.json",
+        "api/package-lock.json"
+      ],
+      "exclude": [
+        ".claude/*",
+        ".opencode/*",
+        ".agents/*",
+        ".engineering/*",
+        "*node_modules/*",
+        "*__pycache__/*"
+      ],
+      "evidenceKind": "source-validation",
+      "limitations": [
+        "Kiểm tra cấu trúc/cú pháp đầu vào và ghi hash; chưa chạy ứng dụng hoặc kiểm chứng nghiệp vụ.",
+        "Python được phân tích AST; JSON nghiêm ngặt và XML được parse; các file khác chỉ được nhận diện bằng hash."
+      ]
+    },
+    {
+      "id": "api-static",
+      "kind": "command",
+      "purpose": "Kiểm tra kiểu/mã của api",
+      "cwd": "api",
+      "argv": [
+        "npm",
+        "exec",
+        "--no",
+        "--",
+        "tsc",
+        "--project",
+        "tsconfig.json",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "requiredFiles": [
+        "api/package.json",
+        "api/tsconfig.json"
+      ],
+      "preparedPaths": [
+        "api/node_modules"
+      ],
+      "timeoutSeconds": 300,
+      "evidenceKind": "static-analysis",
+      "limitations": [
+        "Chuẩn bị toolchain/dependency của module trước; lệnh không tự cài package.",
+        "Không thay thế test nghiệp vụ, native build, prerender hay kiểm tích hợp.",
+        "Chạy trong môi trường được cấp quyền bởi nền tảng agent; script không tạo ranh giới mạng hoặc filesystem."
+      ]
+    },
+    {
+      "id": "cli-manifest",
+      "kind": "source-check",
+      "purpose": "Kiểm tra manifest và đầu vào dependency của cli",
+      "cwd": ".",
+      "requiredFiles": [
+        "cli/package.json",
+        "cli/package-lock.json"
+      ],
+      "patterns": [
+        "cli/package.json",
+        "cli/package-lock.json"
+      ],
+      "exclude": [
+        ".claude/*",
+        ".opencode/*",
+        ".agents/*",
+        ".engineering/*",
+        "*node_modules/*",
+        "*__pycache__/*"
+      ],
+      "evidenceKind": "source-validation",
+      "limitations": [
+        "Kiểm tra cấu trúc/cú pháp đầu vào và ghi hash; chưa chạy ứng dụng hoặc kiểm chứng nghiệp vụ.",
+        "Python được phân tích AST; JSON nghiêm ngặt và XML được parse; các file khác chỉ được nhận diện bằng hash."
+      ]
+    },
+    {
+      "id": "cli-static",
+      "kind": "command",
+      "purpose": "Kiểm tra kiểu/mã của cli",
+      "cwd": "cli",
+      "argv": [
+        "npm",
+        "exec",
+        "--no",
+        "--",
+        "tsc",
+        "--project",
+        "tsconfig.json",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "requiredFiles": [
+        "cli/package.json",
+        "cli/tsconfig.json"
+      ],
+      "preparedPaths": [
+        "cli/node_modules"
+      ],
+      "timeoutSeconds": 300,
+      "evidenceKind": "static-analysis",
+      "limitations": [
+        "Chuẩn bị toolchain/dependency của module trước; lệnh không tự cài package.",
+        "Không thay thế test nghiệp vụ, native build, prerender hay kiểm tích hợp.",
+        "Chạy trong môi trường được cấp quyền bởi nền tảng agent; script không tạo ranh giới mạng hoặc filesystem."
+      ]
+    }
+  ],
+  "integrationPolicy": "API/database/broker/model/native/cloud cần profile hoặc môi trường thử riêng với đích, quyền, dữ liệu và kiểm chứng cụ thể; không chạy toàn bộ suite hoặc script start/migration/deploy để thử profile."
+}
