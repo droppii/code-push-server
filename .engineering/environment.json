@@ -1,12 +1,24 @@
 {
-  "kind": "ainery-environment-contract-v2",
   "component": "codepush-server",
-  "connectors": ["kubernetes", "github", "newrelic", "redis", "blob"],
+  "connectors": [
+    "kubernetes",
+    "github",
+    "newrelic",
+    "redis",
+    "blob"
+  ],
   "environments": {
     "production": {
-      "scope": {"namespaces": ["codepush"], "applications": ["codepush", "codepush-redis"]}
+      "scope": {
+        "applications": [
+          "codepush",
+          "codepush-redis"
+        ],
+        "namespaces": [
+          "codepush"
+        ]
+      }
     }
   },
-  "partners": [],
-  "notes": "Derived on 2026-11-24 from droppii/manifest origin/main (cluster/argocd ApplicationSets vn-stg/vn-beta/vn-prod, apps/base + apps/overlay ConfigMaps; SealedSecrets read by key name only), the Ainery data-broker configs (cluster/ainery/control-plane/hk-stg/data-broker.json, cluster/ainery/brokers/hk-prod/data-broker.json), Ainery's inventories (datastores.json, partners.json, onboarding-inventory.json) and the repository's own code/config. Argo applications codepush and codepush-redis in namespace codepush (cluster/argocd/overlay/hk-prod/apps/codepush). Storage account and container are SealedSecrets (AZURE_STORAGE_ACCOUNT / _ACCESS_KEY), so no blob alias is declared; Redis is the in-namespace codepush-redis."
+  "partners": []
 }
