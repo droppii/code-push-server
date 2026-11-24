@@ -20,5 +20,12 @@
       }
     }
   },
-  "partners": []
+  "partners": [
+    {
+      "beta": "none",
+      "name": "GitHub OAuth (CodePush login)",
+      "production": "production",
+      "staging": "none"
+    }
+  ]
 }
